@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vanya, be my Valentine? 💘</title>
+  <style>
+    :root { --pad: 18px; }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(255,182,193,.55), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(255,105,180,.35), transparent 60%),
+        radial-gradient(900px 700px at 50% 90%, rgba(255,215,0,.18), transparent 60%),
+        #fff;
+      padding: 22px;
+      overflow:hidden;
+    }
+
+    /* floating hearts background */
+    .hearts{
+      position:fixed; inset:0; pointer-events:none; opacity:.55;
+      filter: blur(.2px);
+    }
+    .heart{
+      position:absolute;
+      font-size: 18px;
+      animation: floatUp linear infinite;
+      transform: translateY(110vh);
+      opacity: .0;
+    }
+    @keyframes floatUp{
+      0% { transform: translateY(110vh) translateX(0); opacity: 0; }
+      10% { opacity: .9; }
+      90% { opacity: .9; }
+      100% { transform: translateY(-20vh) translateX(30px); opacity: 0; }
+    }
+
+    .card{
+      width:min(520px, 96vw);
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,105,180,.22);
+      border-radius: 26px;
+      padding: 26px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.12);
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,105,180,.10);
+      border: 1px solid rgba(255,105,180,.18);
+      font-weight: 600;
+      color: #a30052;
+    }
+
+    h1{
+      margin: 14px 0 8px;
+      font-size: clamp(28px, 4.6vw, 40px);
+      line-height: 1.05;
+      letter-spacing: -0.6px;
+      color:#1b1b1b;
+    }
+    p{
+      margin: 8px 0 18px;
+      color:#3b3b3b;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .name{
+      background: linear-gradient(90deg, #ff4aa2, #ff7a59);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+      font-weight: 800;
+    }
+
+    .btnRow{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    button{
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+
+    .yes{
+      background: linear-gradient(90deg, #ff3f93, #ff7a59);
+      color:white;
+      box-shadow: 0 14px 28px rgba(255,63,147,.22);
+    }
+    .yes:hover{ transform: translateY(-1px); box-shadow: 0 16px 34px rgba(255,63,147,.26); }
+
+    .no{
+      background: rgba(20,20,20,.07);
+      color:#1b1b1b;
+      border: 1px solid rgba(0,0,0,.08);
+      position: relative;
+    }
+
+    .tiny{
+      font-size: 13px;
+      opacity: .75;
+      margin-top: 12px;
+    }
+
+    .itinerary{
+      margin-top: 18px;
+      display:none;
+      border-top: 1px dashed rgba(255,105,180,.35);
+      padding-top: 18px;
+      animation: pop .25s ease-out;
+    }
+    @keyframes pop{
+      from{ transform: scale(.985); opacity:0; }
+      to{ transform: scale(1); opacity:1; }
+    }
+
+    .itTitle{
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color:#1b1b1b;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .list{
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display:grid;
+      gap: 10px;
+    }
+    .item{
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,105,180,.08);
+      border: 1px solid rgba(255,105,180,.16);
+    }
+    .time{
+      font-weight: 900;
+      min-width: 88px;
+      color:#a30052;
+    }
+    .desc{
+      color:#2a2a2a;
+      font-weight: 650;
+    }
+
+    .footerLove{
+      margin-top: 14px;
+      font-weight: 700;
+      color:#a30052;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    /* confetti */
+    canvas#confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+  <canvas id="confetti"></canvas>
+
+  <div class="card" id="card">
+    <div class="badge">💌 A tiny question for <span class="name">Vanya</span></div>
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>
+      I planned a whole day for us… and I’m really excited to spend it with you 🥺🤍
+    </p>
+
+    <div class="btnRow" id="btnRow">
+      <button class="yes" id="yesBtn">Yes! 💖</button>
+      <button class="no" id="noBtn" aria-label="No">No 🙃</button>
+    </div>
+
+    <div class="tiny" id="hint">P.S. The “no” button is a little shy.</div>
+
+    <div class="itinerary" id="itinerary">
+      <div class="itTitle">✨ Our Valentine’s Itinerary</div>
+      <ul class="list">
+        <li class="item"><div class="time">11:30</div><div class="desc">Come to mine 🏡</div></li>
+        <li class="item"><div class="time">12:00</div><div class="desc">Coffee date ☕</div></li>
+        <li class="item"><div class="time">3:30</div><div class="desc">Movie + cozy time 🎬</div></li>
+        <li class="item"><div class="time">7:30</div><div class="desc">We leave ✨</div></li>
+        <li class="item"><div class="time">8–9</div><div class="desc">Drinks 🍸</div></li>
+        <li class="item"><div class="time">9:00</div><div class="desc">Dinner — surprise spot 🤭</div></li>
+        <li class="item"><div class="time">11:00</div><div class="desc">Back to mine ❤️</div></li>
+      </ul>
+      <div class="footerLove">🥰 Can’t wait to be with you all day.</div>
+    </div>
+  </div>
+
+  <script>
+    // Floating hearts generator
+    const hearts = document.getElementById('hearts');
+    const heartChars = ["💗","💖","💘","💝","💕","❤️"];
+    for (let i = 0; i < 18; i++){
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+      h.style.left = Math.random()*100 + "vw";
+      h.style.fontSize = (14 + Math.random()*18) + "px";
+      h.style.animationDuration = (6 + Math.random()*8) + "s";
+      h.style.animationDelay = (-Math.random()*10) + "s";
+      hearts.appendChild(h);
+    }
+
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn  = document.getElementById('noBtn');
+    const itinerary = document.getElementById('itinerary');
+    const hint = document.getElementById('hint');
+    const btnRow = document.getElementById('btnRow');
+
+    // "No" button dodge mechanics (works on desktop + mobile)
+    function moveNo(){
+      const card = document.getElementById('card');
+      const cardRect = card.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+
+      // Create a "play area" inside card
+      const padding = 14;
+      const minX = padding;
+      const maxX = cardRect.width - noRect.width - padding;
+      const minY = padding + 70; // keep below header
+      const maxY = cardRect.height - noRect.height - padding - 10;
+
+      // If layout is tight, just wiggle
+      if (maxX < minX || maxY < minY){
+        noBtn.style.transform = `translateX(${(Math.random() * 26 - 13)}px)`;
+        return;
+      }
+
+      // Position absolute within card
+      noBtn.style.position = 'absolute';
+      noBtn.style.right = 'auto';
+
+      const x = Math.random() * (maxX - minX) + minX;
+      const y = Math.random() * (maxY - minY) + minY;
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+
+      hint.textContent = "Nope 😌 try again";
+    }
+
+    // Make row relatively positioned so absolute "no" stays inside
+    btnRow.style.position = "relative";
+    btnRow.style.minHeight = "54px";
+
+    // Move on hover (desktop) and on pointerdown (mobile)
+    noBtn.addEventListener('mouseenter', moveNo);
+    noBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      moveNo();
+    });
+
+    // If she somehow clicks it
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNo();
+    });
+
+    // Yes reveals itinerary + confetti
+    yesBtn.addEventListener('click', () => {
+      itinerary.style.display = "block";
+      hint.textContent = "YAYYY 💞";
+      launchConfetti();
+    });
+
+    // Simple confetti (no libraries)
+    function launchConfetti(){
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      canvas.style.display = "block";
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const pieces = Array.from({length: 160}, () => ({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * canvas.height * 0.2,
+        w: 6 + Math.random() * 6,
+        h: 8 + Math.random() * 10,
+        vx: -1.5 + Math.random() * 3,
+        vy: 2 + Math.random() * 5,
+        r: Math.random() * Math.PI,
+        vr: -0.15 + Math.random() * 0.3,
+        // random pastel-ish colors without hardcoding a single theme color
+        c: `hsl(${Math.floor(Math.random()*360)}, 80%, 70%)`,
+        o: 0.9
+      }));
+
+      let frames = 0;
+      function tick(){
+        frames++;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        for (const p of pieces){
+          p.x += p.vx;
+          p.y += p.vy;
+          p.r += p.vr;
+
+          // slight drag
+          p.vx *= 0.995;
+
+          ctx.save();
+          ctx.globalAlpha = p.o;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.r);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+          ctx.restore();
+        }
+
+        // stop after ~3 seconds
+        if (frames < 180){
+          requestAnimationFrame(tick);
+        } else {
+          canvas.style.display = "none";
+        }
+      }
+      tick();
+    }
+
+    // keep confetti sized
+    window.addEventListener('resize', () => {
+      const canvas = document.getElementById('confetti');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
